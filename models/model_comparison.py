@@ -2,10 +2,13 @@
 Compare performance across all models (scikit-learn and TensorFlow).
 """
 import numpy as np
-from models.linear_regression import TraditionalModels
-from models.neural_network import NeuralNetworkModel
-from utils.evaluation import ModelEvaluator
+from .linear_regression import TraditionalModels
+from .neural_network import NeuralNetworkModel
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from utils.evaluation import ModelEvaluator
 
 class ModelComparison:
     """Compare all models and find the best performer."""

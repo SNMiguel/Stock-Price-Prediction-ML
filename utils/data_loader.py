@@ -5,7 +5,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from sample_data import generate_sample_aapl_data
+from .sample_data import generate_sample_aapl_data
 import warnings
 import logging
 
