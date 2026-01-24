@@ -107,6 +107,26 @@ The project evaluates all models on test data and identifies the best performer 
 - Residual analysis
 - Comprehensive model comparison
 
+## 🎥 Demo
+
+Here’s a quick look at some of the sample results:
+
+<p align="center">
+  <img src="https://i.imgur.com/SwALQDI.png" alt="Image 1" width="600"/>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/Ir10AJM.png" alt="Image 2" width="600"/>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/Lz7SQ5y.png" alt="Image 3" width="600"/>
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/jwBzBj1.png" alt="Image 4" width="600"/>
+</p>
+
 ## 🔧 Customization
 
 ### Change Stock Ticker
