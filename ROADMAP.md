@@ -489,8 +489,8 @@ train(df: DataFrame, sentiment_df: DataFrame) -> dict
 ```
 
 Tasks:
-- [ ] **`training/metrics.py`** — implement all 5 financial metric functions
-- [ ] **`training/walk_forward_trainer.py`** — implement `WalkForwardTrainer`
+- [x] **`training/metrics.py`** — implement all 5 financial metric functions
+- [x] **`training/walk_forward_trainer.py`** — implement `WalkForwardTrainer`
 
 ### Verify Phase 7
 ```bash

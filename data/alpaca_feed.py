@@ -61,6 +61,7 @@ class AlpacaFeed:
                 start=start,
                 end=end,
                 adjustment='raw',
+                feed='iex',   # free paper accounts use IEX, not SIP
             ).df
 
             if bars.empty:
@@ -96,12 +97,30 @@ class AlpacaFeed:
 
         raw = yf.download(ticker, start=start, end=end,
                           progress=False, auto_adjust=True)
+
+        if raw.empty:
+            print(f"  ⚠ yfinance returned no data for {ticker}")
+            return pd.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Volume'])
+
+        # Flatten MultiIndex columns (newer yfinance versions)
         if isinstance(raw.columns, pd.MultiIndex):
             raw.columns = raw.columns.get_level_values(0)
 
-        df = raw[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
-        df.index = pd.to_datetime(df.index).tz_localize(None)
+        # Select OHLCV columns — handle any capitalisation
+        col_map = {c.lower(): c for c in raw.columns}
+        selected = [col_map[c] for c in ('open', 'high', 'low', 'close', 'volume')
+                    if c in col_map]
+        df = raw[selected].copy()
+        df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+
+        # Normalise index: strip timezone, floor to date
+        idx = pd.to_datetime(df.index)
+        if idx.tz is not None:
+            idx = idx.tz_convert(None)
+        df.index = idx.normalize()
         df.index.name = 'date'
+
+        print(f"  yfinance fetched {len(df)} rows for {ticker}")
 
         if db is not None and not df.empty:
             db.upsert_bars(df, ticker)
@@ -124,6 +143,7 @@ class AlpacaFeed:
             '1Day',
             limit=1,
             adjustment='raw',
+            feed='iex',
         ).df
 
         if isinstance(bars.index, pd.MultiIndex):

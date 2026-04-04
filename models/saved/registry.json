@@ -9,5 +9,18 @@
     },
     "framework": "sklearn",
     "timestamp": "2026-04-04T19:49:08.784969"
+  },
+  {
+    "version_id": "2c4fd8ae",
+    "name": "ensemble_AAPL",
+    "path": "models/saved\\2c4fd8ae.joblib",
+    "metrics": {
+      "rmse": 0.6777129218665862,
+      "mae": 0.511653788656641,
+      "r2": 0.9957410424348104,
+      "mape": 0.19453077535118599
+    },
+    "framework": "sklearn",
+    "timestamp": "2026-04-04T20:05:32.787052"
   }
 ]
