@@ -16,27 +16,42 @@ tf.get_logger().setLevel('ERROR')
 
 class NeuralNetworkModel:
     """Deep learning model using TensorFlow/Keras."""
-    
-    def __init__(self, input_dim):
+
+    def __init__(self, input_dim, sequence_length=10):
         """
         Initialize the neural network.
-        
+
         Args:
-            input_dim: Number of input features
+            input_dim:       Number of input features
+            sequence_length: Number of timesteps for LSTM architecture
         """
-        self.input_dim = input_dim
-        self.model = None
-        self.scaler = StandardScaler()
-        self.history = None
-        
+        self.input_dim       = input_dim
+        self.sequence_length = sequence_length
+        self.model           = None
+        self.scaler          = StandardScaler()
+        self.history         = None
+
     def build_model(self, architecture='standard'):
         """
         Build the neural network architecture.
-        
+
         Args:
-            architecture: Type of architecture ('standard', 'deep', 'wide')
+            architecture: 'standard' | 'deep' | 'wide' | 'lstm'
         """
-        if architecture == 'standard':
+        if architecture == 'lstm':
+            # LSTM for sequential pattern learning.
+            # Input must be reshaped to (samples, sequence_length, input_dim)
+            # before calling train() or predict().
+            self.model = keras.Sequential([
+                layers.LSTM(64, return_sequences=True,
+                            input_shape=(self.sequence_length, self.input_dim)),
+                layers.Dropout(0.2),
+                layers.LSTM(32),
+                layers.Dropout(0.2),
+                layers.Dense(1),
+            ])
+
+        elif architecture == 'standard':
             # Standard feed-forward network
             self.model = keras.Sequential([
                 layers.Dense(64, activation='relu', input_shape=(self.input_dim,)),
@@ -177,8 +192,9 @@ class NeuralNetworkModel:
         print("\n" + "="*50)
         print("Neural Network Test Set Evaluation")
         print("="*50)
+        mae = metrics.get('mae', metrics.get('mean_absolute_error', 0))
         print(f"Loss (MSE):              {metrics['loss']:.2f}")
-        print(f"Mean Absolute Error:     {metrics['mae']:.2f}")
+        print(f"Mean Absolute Error:     {mae:.2f}")
         print("="*50 + "\n")
         
         return metrics

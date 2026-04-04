@@ -1,0 +1,13 @@
+[
+  {
+    "version_id": "d5b36aa7",
+    "name": "test_lr",
+    "path": "models/saved\\d5b36aa7.joblib",
+    "metrics": {
+      "rmse": 5.2,
+      "r2": 0.91
+    },
+    "framework": "sklearn",
+    "timestamp": "2026-04-04T19:49:08.784969"
+  }
+]

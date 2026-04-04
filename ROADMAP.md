@@ -431,9 +431,9 @@ get_confidence(X: ndarray) -> float
 ```
 
 Tasks:
-- [ ] **`models/neural_network.py`** — add `sequence_length` param and `'lstm'` architecture
-- [ ] **`models/registry.py`** — implement `ModelRegistry`
-- [ ] **`models/ensemble.py`** — implement `EnsembleModel`
+- [x] **`models/neural_network.py`** — add `sequence_length` param and `'lstm'` architecture
+- [x] **`models/registry.py`** — implement `ModelRegistry`
+- [x] **`models/ensemble.py`** — implement `EnsembleModel`
 
 ### Verify Phase 6
 ```bash
