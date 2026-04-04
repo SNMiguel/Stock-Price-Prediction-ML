@@ -626,8 +626,8 @@ execute_signal(signal: dict, ticker: str,
 ```
 
 Tasks:
-- [ ] **`execution/alpaca_broker.py`** — implement `AlpacaBroker`
-- [ ] **`execution/order_manager.py`** — implement `OrderManager`
+- [x] **`execution/alpaca_broker.py`** — implement `AlpacaBroker`
+- [x] **`execution/order_manager.py`** — implement `OrderManager`
 
 ### Verify Phase 9
 ```bash
