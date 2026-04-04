@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from .sample_data import generate_sample_aapl_data
+from features.indicators import add_indicators
 import warnings
 import logging
 
@@ -80,51 +81,11 @@ class StockDataLoader:
             else:
                 raise ValueError(f"Could not download data for {self.ticker}.")
     def add_technical_indicators(self):
-        """Add technical indicators as features."""
+        """Add technical indicators as features. Delegates to features.indicators."""
         if self.data is None:
             raise ValueError("No data loaded. Call download_data() first.")
-        
-        # Moving averages
-        self.data['MA_5'] = self.data['Close'].rolling(window=5).mean()
-        self.data['MA_10'] = self.data['Close'].rolling(window=10).mean()
-        self.data['MA_20'] = self.data['Close'].rolling(window=20).mean()
-        self.data['MA_50'] = self.data['Close'].rolling(window=50).mean()
-        
-        # Exponential moving averages
-        self.data['EMA_12'] = self.data['Close'].ewm(span=12, adjust=False).mean()
-        self.data['EMA_26'] = self.data['Close'].ewm(span=26, adjust=False).mean()
-        
-        # MACD (Moving Average Convergence Divergence)
-        self.data['MACD'] = self.data['EMA_12'] - self.data['EMA_26']
-        self.data['Signal_Line'] = self.data['MACD'].ewm(span=9, adjust=False).mean()
-        
-        # Relative Strength Index (RSI)
-        delta = self.data['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss
-        self.data['RSI'] = 100 - (100 / (1 + rs))
-        
-        # Bollinger Bands
-        self.data['BB_Middle'] = self.data['Close'].rolling(window=20).mean()
-        bb_std = self.data['Close'].rolling(window=20).std()
-        self.data['BB_Upper'] = self.data['BB_Middle'] + (bb_std * 2)
-        self.data['BB_Lower'] = self.data['BB_Middle'] - (bb_std * 2)
-        
-        # Volume features
-        self.data['Volume_MA_5'] = self.data['Volume'].rolling(window=5).mean()
-        self.data['Volume_MA_20'] = self.data['Volume'].rolling(window=20).mean()
-        
-        # Price momentum
-        self.data['Momentum_5'] = self.data['Close'].diff(5)
-        self.data['Momentum_10'] = self.data['Close'].diff(10)
-        
-        # Daily returns
-        self.data['Daily_Return'] = self.data['Close'].pct_change()
-        
-        # Volatility
-        self.data['Volatility'] = self.data['Daily_Return'].rolling(window=20).std()
-        
+
+        self.data = add_indicators(self.data)
         print(f"Added {len(self.data.columns) - len(self.raw_data.columns)} technical indicators.")
         return self.data
     
