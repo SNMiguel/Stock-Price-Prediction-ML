@@ -1,198 +1,178 @@
-# Stock Price Prediction - Multi-Framework ML Project
+# QuantPilot — Automated Paper Trading System
 
-A comprehensive machine learning project demonstrating end-to-end ML pipeline development by comparing multiple frameworks (scikit-learn, TensorFlow) for stock price prediction using advanced technical indicators and deep learning.
+An end-to-end automated trading system that combines ensemble ML models, live market data, news sentiment analysis, and risk management to trade AAPL, MSFT, and GOOGL on Alpaca's paper trading platform.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4.0-orange)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15.0-orange)
+![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-## 🎯 Project Overview
+## 🎯 What It Does
 
-This project showcases a complete machine learning workflow for stock price prediction, featuring:
-- **18 engineered technical indicators** (Moving Averages, RSI, MACD, Bollinger Bands, Momentum)
-- **4 ML models** trained and compared side-by-side
-- **Multiple frameworks** (scikit-learn + TensorFlow) in a single project
-- **Professional visualizations** and comprehensive performance metrics
-- **Modular, production-ready code** structure
+Every weekday after market close, QuantPilot automatically:
+1. Fetches the latest price bar and news sentiment for each ticker
+2. Runs leakage-free feature engineering (indicators computed only on past data)
+3. Loads the best trained ensemble model per ticker from the registry
+4. Generates a BUY / SELL / HOLD signal with confidence score
+5. Sizes the position using ATR-based risk management (max 15% portfolio exposure)
+6. Submits the order to Alpaca and logs it to the database
+7. Snapshots portfolio value and sends a Discord summary
 
-**Use Case:** Predicting Apple (AAPL) stock closing prices using historical data and technical analysis.
+Every Sunday, models are retrained on fresh data and saved to the registry only if RMSE improves.
 
-## 📊 Models Implemented
+**Live dashboard:** [quantpilot.streamlit.app](https://quantpilot.streamlit.app)
 
-### Traditional ML (scikit-learn)
-1. **Linear Regression** - Baseline linear model
-2. **Random Forest Regressor** - Ensemble learning approach
-3. **Support Vector Regression (SVR)** - Non-linear kernel-based predictions
+## 🏗️ Architecture
 
-### Deep Learning (TensorFlow/Keras)
-4. **Neural Network** - Multi-layer feed-forward architecture with dropout regularization
+```
+QuantPilot/
+├── config.py                     # All settings loaded from .env
+│
+├── data/
+│   ├── database.py               # PostgreSQL via SQLAlchemy (Neon.tech)
+│   ├── alpaca_feed.py            # Live + historical price data (IEX feed)
+│   └── news_sentiment.py         # NewsAPI + VADER sentiment scoring
+│
+├── features/
+│   ├── indicators.py             # 18 technical indicators (MA, RSI, MACD, BB...)
+│   ├── walk_forward.py           # Leakage-free feature slicing by cutoff date
+│   └── sentiment_features.py     # Merges sentiment scores onto feature matrix
+│
+├── models/
+│   ├── ensemble.py               # Ridge meta-learner over OOF base predictions
+│   ├── registry.py               # JSON manifest + joblib/keras persistence
+│   ├── linear_regression.py      # LR, Random Forest, SVR (scikit-learn)
+│   ├── neural_network.py         # LSTM + standard/deep/wide architectures
+│   └── model_comparison.py       # Trains and evaluates all models side-by-side
+│
+├── training/
+│   ├── walk_forward_trainer.py   # Expanding-window cross-validation + retrain
+│   └── metrics.py                # Sharpe, max drawdown, Calmar, win rate, profit factor
+│
+├── signals/
+│   └── generator.py              # BUY/SELL/HOLD from predicted vs current price
+│
+├── risk/
+│   ├── position_sizer.py         # ATR-based sizing with portfolio exposure cap
+│   └── portfolio.py              # Syncs positions with Alpaca, tracks drawdown
+│
+├── execution/
+│   ├── alpaca_broker.py          # Order submission, position queries
+│   └── order_manager.py          # Full signal → order pipeline with risk checks
+│
+├── backtest/
+│   ├── engine.py                 # Event-driven backtester (next-day open fill)
+│   └── report.py                 # Financial metrics + equity curve chart
+│
+├── monitoring/
+│   ├── dashboard.py              # Streamlit live dashboard (5 sections)
+│   └── alerts.py                 # Discord webhook notifications
+│
+├── jobs/
+│   ├── daily_job.py              # Runs the full trade pipeline for all tickers
+│   ├── train_job.py              # Retrains models, saves if RMSE improved
+│   └── backtest_job.py           # On-demand historical strategy evaluation
+│
+└── .github/workflows/
+    ├── daily_trade.yml           # Cron: Mon–Fri 21:30 UTC (5:30 PM ET)
+    └── weekly_retrain.yml        # Cron: Sunday 02:00 UTC
+```
 
-## 🚀 Quick Start
+## 📊 Models
 
-### Installation
+The system trains one **ensemble model per ticker** using a stacked architecture:
+
+- **Base models**: Linear Regression, Random Forest, SVR (scikit-learn) + Neural Network (Keras)
+- **Meta-learner**: Ridge regression trained on out-of-fold predictions
+- **Validation**: 5-fold expanding-window walk-forward (no data leakage)
+- **Registry**: Models are versioned in JSON — production model only updates if RMSE improves
+
+## 🖥️ Dashboard
+
+Five sections updated live:
+
+| Section | Source |
+|---|---|
+| Portfolio Value | Alpaca account API |
+| Equity Curve + Drawdown | `portfolio_snapshots` DB table |
+| Recent Trades | `trades` DB table |
+| Sentiment Scores | `sentiment` DB table |
+| Model Registry | `models/saved/registry.json` |
+
+## 🚀 Local Setup
+
 ```bash
-# Clone the repository
-git clone https://github.com/SNMiguel/Stock-Price-Prediction-ML.git
-cd Stock-Price-Prediction-ML
+git clone https://github.com/SNMiguel/QuantPilot.git
+cd QuantPilot
 
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/Scripts/activate   # Windows Git Bash
 
-# Install dependencies
 pip install -r requirements.txt
+
+# Copy and fill in your credentials
+cp .env.example .env
 ```
 
-### Run the Project
+**Required `.env` keys:**
+
+```
+ALPACA_API_KEY=
+ALPACA_SECRET_KEY=
+ALPACA_BASE_URL=https://paper-api.alpaca.markets
+DB_URL=                   # Neon.tech PostgreSQL connection string
+NEWS_API_KEY=             # newsapi.org
+DISCORD_WEBHOOK_URL=      # optional — alerts channel
+LIVE_TRADING=false        # set true only when ready for real money
+```
+
+**Initialize and test:**
+
 ```bash
-python main.py
+python -m data.database         # Create tables
+python -m data.alpaca_feed      # Verify Alpaca connection
+python -m jobs.train_job        # Train all 3 ticker models (~5 min)
+python -m jobs.daily_job        # Run one full trade cycle
+streamlit run monitoring/dashboard.py
 ```
 
-**What happens:**
-1. Downloads/loads AAPL stock data (2020-2024)
-2. Engineers 18 technical indicators from raw OHLCV data
-3. Trains all 4 models with proper train/test splitting
-4. Evaluates and compares model performance
-5. Generates visualizations saved to `results/` folder
+**Backtest a ticker:**
 
-## 📁 Project Structure
-```
-Stock-Price-Prediction-ML/
-├── data/                    # Data storage (cached/sample data)
-├── models/                  # ML model implementations
-│   ├── linear_regression.py # scikit-learn models (LR, RF, SVR)
-│   ├── neural_network.py    # TensorFlow/Keras deep learning model
-│   └── model_comparison.py  # Framework for comparing all models
-├── utils/                   # Utility functions
-│   ├── data_loader.py       # Data loading & feature engineering
-│   ├── evaluation.py        # Metrics calculation & visualization
-│   └── sample_data.py       # Sample data generator (fallback)
-├── results/                 # Generated visualizations & plots
-├── main.py                  # Main execution script
-├── requirements.txt         # Project dependencies
-└── README.md               # Project documentation
+```bash
+python -m jobs.backtest_job --ticker AAPL --start 2024-01-01
 ```
 
-## 📈 Features
+## ⚙️ GitHub Actions
 
-### Feature Engineering - Technical Indicators
-- **Moving Averages**: Simple MA (5, 10, 20, 50-day), Exponential MA (12, 26-day)
-- **Momentum Indicators**: RSI (14-day), MACD, Price Momentum (5, 10-day)
-- **Volatility Measures**: Bollinger Bands (20-day), Historical Volatility
-- **Volume Analysis**: Volume Moving Averages (5, 20-day)
-- **Returns**: Daily percentage returns
+Two automated workflows run on schedule — no server required:
 
-### Model Evaluation Metrics
-- **Mean Absolute Error (MAE)** - Average prediction error
-- **Root Mean Squared Error (RMSE)** - Penalizes large errors
-- **R² Score** - Proportion of variance explained
-- **Mean Absolute Percentage Error (MAPE)** - Relative error percentage
+| Workflow | Schedule | Job |
+|---|---|---|
+| `daily_trade.yml` | Mon–Fri 21:30 UTC | `jobs/daily_job.py` |
+| `weekly_retrain.yml` | Sunday 02:00 UTC | `jobs/train_job.py` |
 
-### Visualizations
-- Actual vs Predicted price time series plots
-- Residual distribution and scatter plots
-- Side-by-side model comparison charts
-- Performance metrics dashboard
+**Required GitHub secrets** (Settings → Secrets → Actions):
+`ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `ALPACA_BASE_URL`, `DB_URL`, `NEWS_API_KEY`, `DISCORD_WEBHOOK_URL`, `LIVE_TRADING`
 
-## 🛠️ Technologies & Frameworks
+## 🛡️ Risk Management
 
-- **Python 3.11** - Programming language
-- **scikit-learn 1.4.0** - Traditional ML algorithms (Linear Regression, Random Forest, SVR)
-- **TensorFlow 2.15.0** - Deep learning framework (Keras API)
-- **pandas** - Data manipulation and time series handling
-- **NumPy** - Numerical computing and array operations
-- **matplotlib/seaborn** - Data visualization and plotting
-- **yfinance** - Stock market data retrieval
+- **ATR-based position sizing**: `(portfolio × risk_per_trade) / (ATR × multiplier)`
+- **Hard exposure cap**: single position ≤ 15% of portfolio value
+- **Confidence gate**: signals below `CONFIDENCE_THRESHOLD` (0.60) are ignored
+- **LIVE_TRADING gate**: must be explicitly set to `true` to submit real orders
+- **Cash account**: avoids PDT rule (no margin, no 3-trade-per-week limit)
 
-## 📊 Sample Results
+## 🛠️ Technologies
 
-The project evaluates all models on held-out test data and identifies the best performer based on RMSE. Results include:
-- Individual model prediction plots with actual vs predicted prices
-- Residual analysis showing prediction error distribution
-- Comprehensive side-by-side model comparison
-
-### Visualizations
-
-<p align="center">
-  <img src="https://i.imgur.com/SwALQDI.png" alt="Model Predictions" width="600"/>
-</p>
-
-<p align="center">
-  <img src="https://i.imgur.com/Ir10AJM.png" alt="Residual Analysis" width="600"/>
-</p>
-
-<p align="center">
-  <img src="https://i.imgur.com/Lz7SQ5y.png" alt="Model Comparison" width="600"/>
-</p>
-
-<p align="center">
-  <img src="https://i.imgur.com/jwBzBj1.png" alt="Performance Metrics" width="600"/>
-</p>
-
-## 🔧 Customization
-
-### Change Stock Ticker
-```python
-# In main.py
-loader = StockDataLoader(ticker="MSFT", start_date="2020-01-01")
-```
-
-### Adjust Date Range
-```python
-loader = StockDataLoader(
-    ticker="AAPL", 
-    start_date="2022-01-01", 
-    end_date="2024-12-31"
-)
-```
-
-### Modify Neural Network Architecture
-```python
-# Options: 'standard', 'deep', 'wide'
-nn_model.build_model(architecture='deep')
-```
-
-### Add More Models
-The modular structure makes it easy to add new models:
-```python
-# In models/linear_regression.py
-def train_custom_model(self, X_train, y_train):
-    model = YourCustomModel()
-    model.fit(X_train, y_train)
-    self.models['Custom Model'] = model
-    return model
-```
-
-## 📝 Key Learnings & Insights
-
-- **Feature engineering** with domain-specific technical indicators significantly improves prediction accuracy over raw OHLCV data
-- **Neural networks** can capture complex non-linear patterns but require careful tuning and sufficient data
-- **Ensemble methods** like Random Forest provide robust predictions with built-in feature importance
-- **Proper train/test splitting** without shuffling is critical for time series to avoid data leakage
-- **Model comparison** reveals that no single model dominates across all metrics
-
-## 🎓 Skills Demonstrated
-
-- End-to-end ML pipeline development
-- Feature engineering for time series data
-- Multiple ML framework integration (scikit-learn, TensorFlow)
-- Model training, evaluation, and comparison
-- Data visualization and results communication
-- Clean, modular code architecture
-- Git version control and documentation
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to:
-- Report bugs or issues
-- Suggest new features or models
-- Submit pull requests
-- Improve documentation
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+| Layer | Stack |
+|---|---|
+| ML | scikit-learn, TensorFlow/Keras |
+| Data | yfinance, Alpaca Markets API, NewsAPI, VADER |
+| Database | PostgreSQL (Neon.tech) via SQLAlchemy |
+| Dashboard | Streamlit |
+| Automation | GitHub Actions |
+| Alerts | Discord webhooks |
 
 ## 👤 Author
 
@@ -201,21 +181,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - GitHub: [github.com/SNMiguel](https://github.com/SNMiguel)
 - Portfolio: [migztech.vercel.app](https://migztech.vercel.app)
 
-## 🙏 Acknowledgments
-
-- Stock data provided by Yahoo Finance via the yfinance library
-- Inspired by quantitative finance and machine learning best practices
-- Built as part of technical skill development for AI/ML engineering roles
-
-## 🔮 Future Enhancements
-
-- [ ] Add LSTM/GRU models for sequential pattern learning
-- [ ] Implement sliding window predictions for multi-day forecasting
-- [ ] Create interactive Streamlit/Gradio web interface
-- [ ] Add support for multiple stock tickers simultaneously
-- [ ] Implement hyperparameter tuning with GridSearchCV
-- [ ] Deploy model as REST API with FastAPI
-
 ---
 
-⭐ **If you found this project helpful, please consider giving it a star!**
+⭐ If you found this project useful, consider giving it a star!
