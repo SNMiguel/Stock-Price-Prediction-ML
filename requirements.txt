@@ -1,3 +1,4 @@
+# Core ML / data
 yfinance==0.2.48
 pandas==2.2.0
 numpy==1.26.4
@@ -5,3 +6,23 @@ scikit-learn==1.4.0
 tensorflow==2.15.0
 matplotlib==3.8.2
 seaborn==0.13.1
+
+# Database
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+
+# Alpaca
+alpaca-trade-api>=3.0.0
+
+# News & NLP
+newsapi-python>=0.2.7
+nltk>=3.8
+
+# Config
+python-dotenv>=1.0
+
+# Dashboard
+streamlit>=1.30
+
+# HTTP (used by alerts)
+requests>=2.31
