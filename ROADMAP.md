@@ -693,9 +693,9 @@ def generate(equity_curve: DataFrame, trade_log: DataFrame) -> dict:
 ```
 
 Tasks:
-- [ ] **`backtest/engine.py`** — implement `BacktestEngine`
-- [ ] **`backtest/report.py`** — implement `generate()`
-- [ ] **`jobs/backtest_job.py`** — implement orchestration script
+- [x] **`backtest/engine.py`** — implement `BacktestEngine`
+- [x] **`backtest/report.py`** — implement `generate()`
+- [x] **`jobs/backtest_job.py`** — implement orchestration script
 
 ### Verify Phase 10
 ```bash
