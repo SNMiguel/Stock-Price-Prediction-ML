@@ -736,8 +736,8 @@ send_error(error_message: str) -> None:
 ```
 
 Tasks:
-- [ ] **`monitoring/alerts.py`** — implement `DiscordAlerter`
-- [ ] **`monitoring/dashboard.py`** — implement Streamlit app
+- [x] **`monitoring/alerts.py`** — implement `DiscordAlerter`
+- [x] **`monitoring/dashboard.py`** — implement Streamlit app
 - [ ] Deploy dashboard to Streamlit Cloud
 
 ### Verify Phase 11
