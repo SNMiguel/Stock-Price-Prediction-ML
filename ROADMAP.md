@@ -567,9 +567,9 @@ get_max_drawdown() -> float:
 ```
 
 Tasks:
-- [ ] **`signals/generator.py`** — implement `SignalGenerator`
-- [ ] **`risk/position_sizer.py`** — implement `PositionSizer`
-- [ ] **`risk/portfolio.py`** — implement `Portfolio`
+- [x] **`signals/generator.py`** — implement `SignalGenerator`
+- [x] **`risk/position_sizer.py`** — implement `PositionSizer`
+- [x] **`risk/portfolio.py`** — implement `Portfolio`
 
 ### Verify Phase 8
 ```bash
