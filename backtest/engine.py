@@ -22,14 +22,18 @@ class BacktestEngine:
     """Chronological event-driven backtester."""
 
     def __init__(self, commission_per_share: float = 0.01,
-                 initial_capital: float = 100_000.0):
+                 initial_capital: float = 100_000.0,
+                 stop_loss_pct: float = 0.02):
         """
         Args:
             commission_per_share: Cost per share traded (default $0.01).
             initial_capital:      Starting portfolio cash (default $100,000).
+            stop_loss_pct:        Exit long position if price drops this far
+                                  below entry (default 2%).
         """
         self.commission_per_share = commission_per_share
         self.initial_capital      = initial_capital
+        self.stop_loss_pct        = stop_loss_pct
 
     def run(self, df: pd.DataFrame,
             sentiment_df: pd.DataFrame,
@@ -101,6 +105,11 @@ class BacktestEngine:
 
             signal = signal_gen.generate(current_price, predicted, confidence)
             action = signal['signal']
+
+            # Stop-loss overrides signal
+            if position > 0 and entry_px > 0:
+                if current_price <= entry_px * (1 - self.stop_loss_pct):
+                    action = 'SELL'
 
             trade_side = ''
             trade_qty  = 0

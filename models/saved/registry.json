@@ -22,5 +22,31 @@
     },
     "framework": "sklearn",
     "timestamp": "2026-04-04T20:05:32.787052"
+  },
+  {
+    "version_id": "27dceae8",
+    "name": "ensemble_MSFT",
+    "path": "models/saved\\27dceae8.joblib",
+    "metrics": {
+      "rmse": 1.270014367295494,
+      "mae": 0.9621373819364334,
+      "r2": 0.9993815980480698,
+      "mape": 0.21363516392283338
+    },
+    "framework": "sklearn",
+    "timestamp": "2026-04-04T21:10:15.499996"
+  },
+  {
+    "version_id": "780cb018",
+    "name": "ensemble_GOOGL",
+    "path": "models/saved\\780cb018.joblib",
+    "metrics": {
+      "rmse": 1.5761826222717314,
+      "mae": 1.2276823945193753,
+      "r2": 0.9965782377055499,
+      "mape": 0.40505112742718014
+    },
+    "framework": "sklearn",
+    "timestamp": "2026-04-04T21:14:16.939386"
   }
 ]

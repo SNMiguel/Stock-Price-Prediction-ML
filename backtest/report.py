@@ -178,7 +178,7 @@ def _plot_equity_curve(equity_curve: pd.DataFrame, metrics: dict,
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
-    print(f"  Chart saved → {save_path}")
+    print(f"  Chart saved: {save_path}")
 
 
 if __name__ == "__main__":

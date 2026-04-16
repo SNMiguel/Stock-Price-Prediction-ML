@@ -30,7 +30,12 @@ WATCHLIST: list = ["AAPL", "MSFT", "GOOGL"]
 TRAIN_LOOKBACK_DAYS: int    = 1000
 MAX_POSITION_PCT: float     = 0.15   # 15% per ticker — caps total tech exposure at 45%
 CONFIDENCE_THRESHOLD: float = 0.60   # Minimum ensemble agreement to act on a signal
-SIGNAL_THRESHOLD: float     = 0.01   # 1% predicted move required to trigger BUY/SELL
+SIGNAL_THRESHOLD: float     = 0.003  # 0.3% predicted move required to trigger BUY/SELL
+
+# Per-ticker overrides — tickers not listed here fall back to SIGNAL_THRESHOLD
+SIGNAL_THRESHOLD_OVERRIDES: dict = {
+    'MSFT': 0.006,   # MSFT has higher RMSE; require 0.6% move to reduce noise trades
+}
 
 # --- Model registry ---
 MODEL_REGISTRY_PATH: str = "models/saved/registry.json"

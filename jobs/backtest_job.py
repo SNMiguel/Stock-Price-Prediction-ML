@@ -21,7 +21,7 @@ from backtest.report import generate as generate_report
 
 def run_backtest(ticker: str, start: str, end: str) -> dict:
     print(f"\n{'='*55}")
-    print(f"  Backtest: {ticker}  {start} → {end}")
+    print(f"  Backtest: {ticker}  {start} to {end}")
     print(f"{'='*55}")
 
     # --- Data ---
@@ -54,7 +54,8 @@ def run_backtest(ticker: str, start: str, end: str) -> dict:
           f"RMSE=${meta['metrics']['rmse']:.4f}")
 
     # --- Components ---
-    signal_gen = SignalGenerator()
+    threshold  = config.SIGNAL_THRESHOLD_OVERRIDES.get(ticker, config.SIGNAL_THRESHOLD)
+    signal_gen = SignalGenerator(threshold=threshold)
     sizer      = PositionSizer()
     engine     = BacktestEngine(commission_per_share=0.01,
                                 initial_capital=100_000.0)

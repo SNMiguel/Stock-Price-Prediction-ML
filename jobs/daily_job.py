@@ -64,10 +64,7 @@ def run() -> None:
         sizer   = PositionSizer(max_position_pct=config.MAX_POSITION_PCT)
         portfolio = Portfolio(feed, db)
         order_mgr = OrderManager(broker, portfolio, sizer, db, alerter)
-        signal_gen = SignalGenerator(
-            threshold=config.SIGNAL_THRESHOLD,
-            confidence_threshold=config.CONFIDENCE_THRESHOLD,
-        )
+        # signal_gen is created per-ticker below to support per-ticker thresholds
         registry = ModelRegistry()
         sentiment_client = NewsSentiment(config.NEWS_API_KEY)
 
@@ -138,6 +135,12 @@ def run() -> None:
                   f"Conf: {confidence:.2f}")
 
             # 8. Generate signal
+            threshold  = config.SIGNAL_THRESHOLD_OVERRIDES.get(
+                ticker, config.SIGNAL_THRESHOLD)
+            signal_gen = SignalGenerator(
+                threshold=threshold,
+                confidence_threshold=config.CONFIDENCE_THRESHOLD,
+            )
             signal = signal_gen.generate(current, predicted, confidence)
             all_signals[ticker] = signal
             print(f"  Signal: {signal['signal']}  Δ{signal['delta_pct']:+.2f}%")
