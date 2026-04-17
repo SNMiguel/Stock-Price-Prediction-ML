@@ -98,9 +98,12 @@ class ModelRegistry:
         if not candidates:
             return None, None
 
-        best = min(candidates,
-                   key=lambda e: e['metrics'].get(metric, float('inf')))
-        return self._load_model(best), best
+        best  = min(candidates,
+                    key=lambda e: e['metrics'].get(metric, float('inf')))
+        model = self._load_model(best)
+        if model is None:
+            return None, None
+        return model, best
 
     def load_version(self, version_id: str):
         """Load a specific model version by its version_id."""
@@ -112,11 +115,14 @@ class ModelRegistry:
 
     def _load_model(self, entry: dict):
         path = os.path.normpath(entry['path'])
-        if entry['framework'] == 'keras':
-            from tensorflow import keras
-            return keras.models.load_model(path)
-        else:
-            return joblib.load(path)
+        try:
+            if entry['framework'] == 'keras':
+                from tensorflow import keras
+                return keras.models.load_model(path)
+            else:
+                return joblib.load(path)
+        except FileNotFoundError:
+            return None
 
     # ------------------------------------------------------------------
     # List
