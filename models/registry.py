@@ -62,7 +62,7 @@ class ModelRegistry:
         entry = {
             'version_id': version_id,
             'name':       name,
-            'path':       path,
+            'path':       path.replace('\\', '/'),  # always store with forward slashes
             'metrics':    metrics,
             'framework':  framework,
             'timestamp':  timestamp,
@@ -111,11 +111,12 @@ class ModelRegistry:
         return self._load_model(entry)
 
     def _load_model(self, entry: dict):
+        path = os.path.normpath(entry['path'])
         if entry['framework'] == 'keras':
             from tensorflow import keras
-            return keras.models.load_model(entry['path'])
+            return keras.models.load_model(path)
         else:
-            return joblib.load(entry['path'])
+            return joblib.load(path)
 
     # ------------------------------------------------------------------
     # List

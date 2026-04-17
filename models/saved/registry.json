@@ -2,7 +2,7 @@
   {
     "version_id": "d5b36aa7",
     "name": "test_lr",
-    "path": "models/saved\\d5b36aa7.joblib",
+    "path": "models/saved/d5b36aa7.joblib",
     "metrics": {
       "rmse": 5.2,
       "r2": 0.91
@@ -13,7 +13,7 @@
   {
     "version_id": "2c4fd8ae",
     "name": "ensemble_AAPL",
-    "path": "models/saved\\2c4fd8ae.joblib",
+    "path": "models/saved/2c4fd8ae.joblib",
     "metrics": {
       "rmse": 0.6777129218665862,
       "mae": 0.511653788656641,
@@ -26,7 +26,7 @@
   {
     "version_id": "27dceae8",
     "name": "ensemble_MSFT",
-    "path": "models/saved\\27dceae8.joblib",
+    "path": "models/saved/27dceae8.joblib",
     "metrics": {
       "rmse": 1.270014367295494,
       "mae": 0.9621373819364334,
@@ -39,7 +39,7 @@
   {
     "version_id": "780cb018",
     "name": "ensemble_GOOGL",
-    "path": "models/saved\\780cb018.joblib",
+    "path": "models/saved/780cb018.joblib",
     "metrics": {
       "rmse": 1.5761826222717314,
       "mae": 1.2276823945193753,
@@ -47,6 +47,6 @@
       "mape": 0.40505112742718014
     },
     "framework": "sklearn",
-    "timestamp": "2026-04-04T21:14:16.939386"
+    "timestamp": "2026-04-04T21:14:16.939346"
   }
 ]
